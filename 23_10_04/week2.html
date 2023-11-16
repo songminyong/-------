@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>ThreeJS
+        </title>
+        <script src="./three.js"></script>
+        <script src="./dat.gui.js"></script>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="webgl-output"></div>
+        <script>
+            function init() {
+
+                var scene = new THREE.Scene();
+                var camera = new THREE.PerspectiveCamera(
+                    45,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    1000
+                );
+                const gui = new dat.GUI();
+
+                var renderer = new THREE.WebGLRenderer();
+                renderer.setClearColor(new THREE.Color(0x000000));
+                renderer.setSize(window.innerWidth, window.innerHeight);
+
+                camera
+                    .position
+                    .set(-20, 20, 15);
+                camera.lookAt(scene.position);
+
+              
+                const boxwidth = 1;
+                const boxheight = 1;
+                const boxdepth = 1;
+                const geometry = new THREE.BoxGeometry(boxwidth,boxheight,boxdepth);
+                const meterial = new THREE.MeshPhongMaterial({color : 0x44aa88});
+
+                const cube =  new THREE.Mesh(geometry,meterial);
+                scene.add(cube);
+                var axes = new THREE.AxesHelper(15);
+                cube.add(axes);
+                
+
+                const loader = new THREE.TextureLoader();
+                const texture = loader.load('https://cdn.shopify.com/s/files/1/0035/2754/0782/articles/International_Flower' +
+                    '_Day_700x.jpeg?v=1579365491');
+                const material_t = new THREE.MeshBasicMaterial({map : texture});
+                const cube_t = new THREE.Mesh(geometry,material_t);
+                cube_t.position.x = 5;
+                cube.add(cube_t);
+
+                const geometry_T = new THREE.SphereGeometry(2, 15, 15);
+                const meterial_T = new THREE.MeshPhongMaterial({color : 0x44aa88});
+                meterial_T.shininess = 100;
+                meterial_T.flatShading = true;
+                const torus = new THREE.Mesh(geometry_T,meterial_T);
+                torus.position.x = 5;
+                cube_t.add(torus);
+
+                const grid = new THREE.GridHelper(10,10);
+                grid.material.depthTest=false;
+                grid.renderOrder =1;
+                cube.add(grid);
+
+                gui.add(grid,'visible').name("그리드표시")
+                gui.add(cube.scale,'x').name("x").min(0.1).max(10).step(1);
+
+                function updateCamera() {
+                    camera.updateProjectionMatrix()
+                }
+
+                gui
+                    .add(camera, 'fov')
+                    .min(0.1)
+                    .max(150)
+                    .step(0.1)
+                    .onChange(updateCamera);
+
+
+
+                const color = 0xFFFFFF;
+                const intensity = 1;
+                const light = new THREE.DirectionalLight(color, intensity);
+                light
+                    .position
+                    .set(-10, 2, 4);
+                scene.add(light);
+
+                document
+                    .getElementById("webgl-output")
+                    .appendChild(renderer.domElement);
+                
+                var count = 0;
+                renderScene();
+                function renderScene() {
+                    
+                    cube_t.position.y = Math.sin(10*cube.rotation.x);
+                    
+                    cube.rotation.x +=0.01;
+                    cube_t.rotation.y +=0.01;
+                    torus.rotation.y += 0.01;
+                    console.log("sdf"+count)
+                    requestAnimationFrame(renderScene);
+                    renderer.render(scene, camera);
+                    console.log(count)
+                    count+=1;
+                }
+            }
+
+            window.onload = init;
+        </script>
+    </body>
+</html>

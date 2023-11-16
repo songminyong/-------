@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>2022041085 송민용 과제 1</title>
+    <script src="./three.js"></script>
+    <script src="./dat.gui.js"></script>
+    <script src="./OrbitControls.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="webgl-output"></div>
+    <script type>
+      // 간단한 사무용 책상과 의자
+
+
+      function init() {
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(
+          45,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
+        const gui = new dat.GUI();
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(new THREE.Color(0x000000));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+
+        //화면 마우스로 회전시키기
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        camera.position.set(-20, 20, 20);
+        controls.update();
+
+        //바닥
+        const pgeometry = new THREE.PlaneGeometry(15, 15);
+        const pmaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+        const plane = new THREE.Mesh(pgeometry, pmaterial);
+        plane.rotation.x = 1.5 * Math.PI;
+        plane.position.set(0, -1, 0);
+        plane.receiveShadow = true;
+        scene.add(plane);
+
+        //directional light
+        dlight = new THREE.DirectionalLight(0xffffff, 1);
+        dlight.position.set(0, 10, -10);
+        dlight.castShadow = true;
+        scene.add(dlight);
+        gui.add(dlight, "visible").name("directional light_1");
+        //directional light 헬퍼
+        const dhelper = new THREE.DirectionalLightHelper(dlight, 5);
+        scene.add(dhelper);
+        gui.add(dhelper, "visible").name("d-light helper_1");
+
+        dlight2 = new THREE.DirectionalLight(0xffffff, 1);
+        dlight2.position.set(0, 10, 10);
+        dlight2.castShadow = true;
+        scene.add(dlight2);
+        gui.add(dlight2, "visible").name("directional light_2");
+        const dhelper2 = new THREE.DirectionalLightHelper(dlight2, 5);
+        scene.add(dhelper2);
+        gui.add(dhelper2, "visible").name("d-light helper_2");
+
+        //directional light
+        dlight3 = new THREE.DirectionalLight(0xffffff, 1);
+        dlight3.position.set(10, 10, 0);
+        dlight3.castShadow = true;
+        scene.add(dlight3);
+        gui.add(dlight3, "visible").name("directional light_3");
+        //directional light 헬퍼
+        const dhelper3 = new THREE.DirectionalLightHelper(dlight3, 5);
+        scene.add(dhelper3);
+        gui.add(dhelper3, "visible").name("d-light helper_3");
+
+        dlight4 = new THREE.DirectionalLight(0xffffff, 1);
+        dlight4.position.set(-10, 10, 0);
+        dlight4.castShadow = true;
+        scene.add(dlight4);
+        gui.add(dlight4, "visible").name("directional light_4");
+        const dhelper4 = new THREE.DirectionalLightHelper(dlight4, 5);
+        scene.add(dhelper4);
+        gui.add(dhelper4, "visible").name("d-light helper_4");
+
+        //floor
+        const floorGeometry = new THREE.BoxGeometry(20, 0.5, 20);
+        const floorMaterial = new THREE.MeshStandardMaterial({color:'#0080FF'});
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.position.y = -1;
+        scene.add(floor);
+
+        /* 원형 탁자(삭제) 
+        // table
+        const tableBaseGeometry = new THREE.CylinderGeometry(2, 2, 1, 32);
+        const tableColumnGeometry = new THREE.CylinderGeometry(1, 1, 3, 32);
+        const tableTopGeometry = new THREE.CylinderGeometry(4, 4, 0.5, 32);
+        const tableBaseMaterial = new THREE.MeshStandardMaterial({color:'#FF4000'});
+        const tableColumnMaterial = new THREE.MeshStandardMaterial({color:'#FF4000'});
+        const tableTopMaterial = new THREE.MeshStandardMaterial({color:'#FF4000'});
+        const tableBase = new THREE.Mesh(tableBaseGeometry, tableBaseMaterial);
+        const tableColumn = new THREE.Mesh(tableColumnGeometry, tableColumnMaterial);
+        const tableTop = new THREE.Mesh(tableTopGeometry, tableTopMaterial);
+        tableBase.position.y = -0.5;
+        tableColumn.position.y = 1;
+        tableTop.position.y = 2.5;
+        const table = new THREE.Group();
+        table.add(tableBase);
+        table.add(tableColumn);
+        table.add(tableTop);
+        table.position.z = -3;
+        scene.add(table);
+        */
+
+        //office table
+        const tableLegGeometry = new THREE.BoxGeometry(0.5, 4, 4);
+        const tableBaseGeometry = new THREE.BoxGeometry(9, 0.5, 4);
+        const tableBackGeometry = new THREE.BoxGeometry(9, 7, 0.5);
+        const tableMaterial = new THREE.MeshStandardMaterial({color:'#FF4000'});
+        const tableLeg1 = new THREE.Mesh(tableLegGeometry, tableMaterial);
+        const tableLeg2 = new THREE.Mesh(tableLegGeometry, tableMaterial);
+        const tableBase = new THREE.Mesh(tableBaseGeometry, tableMaterial);
+        const tableBack = new THREE.Mesh(tableBackGeometry, tableMaterial);
+        tableLeg1.position.x = -4.25;
+        tableLeg2.position.x = 4.25;
+        tableBase.position.set(0, 2, 0);
+        tableBack.position.set(0, 2.25, -2);
+        const table = new THREE.Group();
+        table.add(tableLeg1);
+        table.add(tableLeg2);
+        table.add(tableBase);
+        table.add(tableBack);
+        table.position.z = -3;
+        scene.add(table);
+
+        //chair
+        const chairLegGeometry = new THREE.BoxGeometry(0.5, 2, 0.5);
+        const chairBaseGeometry = new THREE.BoxGeometry(3, 0.5, 3);
+        const chairBackGeometry = new THREE.BoxGeometry(3, 4, 0.5);
+        const chairMaterial = new THREE.MeshStandardMaterial({color:'#40FF00'});
+        const chairLeg1 = new THREE.Mesh(chairLegGeometry, chairMaterial);
+        const chairLeg2 = new THREE.Mesh(chairLegGeometry, chairMaterial);
+        const chairLeg3 = new THREE.Mesh(chairLegGeometry, chairMaterial);
+        const chairLeg4 = new THREE.Mesh(chairLegGeometry, chairMaterial);
+        const chairBase = new THREE.Mesh(chairBaseGeometry, chairMaterial);
+        const chairBack = new THREE.Mesh(chairBackGeometry, chairMaterial);
+        chairLeg1.position.set(1.25, 2, 1.25);
+        chairLeg2.position.set(-1.25, 2, -1.25);
+        chairLeg3.position.set(1.25, 2, -1.25);
+        chairLeg4.position.set(-1.25, 2, 1.25);
+        chairBase.position.set(0, 3, 0);
+        chairBack.position.set(0, 5, 1.25);
+        const chair = new THREE.Group();
+        chair.add(chairLeg1);
+        chair.add(chairLeg2);
+        chair.add(chairLeg3);
+        chair.add(chairLeg4);
+        chair.add(chairBase);
+        chair.add(chairBack);
+        chair.position.set(0, -2, 3);
+        scene.add(chair);
+
+        //donut
+        const donutGeometry = new THREE.TorusGeometry(0.7, 0.4, 32, 100);
+        const donutMaterial = new THREE.MeshStandardMaterial({color:'#FA58F4'});
+        const donut = new THREE.Mesh(donutGeometry, donutMaterial);
+        donut.rotateX(1.5708);
+        //scene.add(donut);
+
+        
+        function updateCamera() {
+          camera.updateProjectionMatrix();
+        }
+
+        gui
+          .add(camera, "fov")
+          .min(0.1)
+          .max(150)
+          .step(0.1)
+          .onChange(updateCamera);
+
+        document
+          .getElementById("webgl-output")
+          .appendChild(renderer.domElement);
+
+        var count = 0;
+        renderScene();
+        function renderScene() {
+          controls.update();
+          requestAnimationFrame(renderScene);
+          renderer.render(scene, camera);
+        }
+      }
+
+      window.onload = init;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sound Effecter</title>
+    <script src="./three.js"></script>
+    <script src="./dat.gui.js"></script>
+    <script src="./OrbitControls.js"></script>
+    <script src="./ddv.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <audio id="audio" src="Blinding-Lights-Official-Audio.mp3"></audio>
+    <!-- <audio id="audio" src ="ff-16b-2c-44100hz.mp3"></audio>  -->
+    <div id="webgl-output"></div>
+    <script>
+      function init() {
+        {
+          var audioCtx = new AudioContext();
+          var analyser = audioCtx.createAnalyser();
+          var stream = document.getElementById("audio");
+
+          source = audioCtx.createMediaElementSource(stream);
+          source.connect(analyser);
+          analyser.connect(audioCtx.destination);
+
+          analyser.fftSize = 64;
+          var bufferLength = analyser.frequencyBinCount;
+          var dataArray = new Uint8Array(bufferLength);
+        }
+
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const gui = new dat.GUI();
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(new THREE.Color(0x000000));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+
+        //화면 마우스로 회전시키기
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        camera.position.set(-60, 20, 0);
+        controls.target.set(0, 0, 30);
+        controls.update();
+
+        let arr1 = new Array(1);
+        for (var i = 0; i < 1; i++) {
+          arr1[i] = new Array(32);
+          for (let j = 0; j < 32; j++) {
+            arr1[i][j] = 30;
+          }
+        }
+
+        // console.log("sdfsf",arr1)
+
+        var axes = new THREE.AxesHelper(15);
+        scene.add(axes);
+
+        const color = 0xffffff;
+        const intensity = 1;
+        const light = new THREE.DirectionalLight(color, intensity);
+        light.position.set(-10, 2, 4);
+        scene.add(light);
+
+        gui.add(axes, "visible").name("축표시");
+
+        //name을 가지고 object를 찾아냄
+        function findIndexWithName(arr, name) {
+          let result = arr.find((element) => element.name === name);
+          return result;
+        }
+
+        function updateCamera() {
+          camera.updateProjectionMatrix();
+        }
+
+        var ddv = new DDV();
+        var chart = ddv.Box3Dchart(arr1, 2, 2, 0.5, true);
+
+        scene.add(chart);
+        console.log("object", findIndexWithName(chart.children, "box_group"));
+        var box_group = findIndexWithName(chart.children, "box_group");
+
+        function make_live_data(data, group) {
+          let n_cols = data.length;
+          let n_rows = group.children.length / n_cols;
+          console.log(n_cols);
+          for (let i = 1; i < n_rows; i++) {
+            for (let j = 0; j < n_cols; j++) {
+              group.children[j + i * n_cols].scale.set(1, group.children[j + (i - 1) * n_cols].scale.y * 0.9, 1);
+              group.children[j + i * n_cols].position.y = (group.children[j + (i - 1) * n_cols].scale.y * 0.9) / 2;
+              group.children[j + i * n_cols].material.color.r = group.children[j + (i - 1) * n_cols].material.color.r;
+            }
+          }
+
+          for (let i = 0; i < data.length; i++) {
+            group.children[i].scale.set(1, (data[i] - 120) / 2, 1);
+            group.children[i].position.y = group.children[i].scale.y / 2;
+            group.children[i].material.color.r = colormake(60, data[i] - 120);
+          }
+        }
+        function colormake(max_value, cur_value) {
+          let red = cur_value / max_value;
+
+          return red;
+        }
+        var obj = {
+          Play: function () {
+            stream.play();
+          },
+        };
+
+        gui.add(obj, "Play").name("재생");
+
+        document.getElementById("webgl-output").appendChild(renderer.domElement);
+        renderScene();
+
+        function renderScene() {
+          analyser.getByteTimeDomainData(dataArray);
+          let dataA = Array.from(dataArray);
+          let dataArray2 = [];
+          dataA.forEach(function (v) {
+            dataArray2.push(v * 0.3);
+          });
+
+          chart.pushData(dataArray2);
+          controls.update();
+          requestAnimationFrame(renderScene);
+          renderer.render(scene, camera);
+        }
+      }
+      window.onload = init;
+    </script>
+  </body>
+</html>

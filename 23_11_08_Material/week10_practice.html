@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>ThreeJS</title>
+    <script src="./three.js"></script>
+    <script src="./dat.gui.js"></script>
+    <script src="./OrbitControls.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webgl-output"></div>
+    <script>
+        function init() {
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera(
+                45,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            const gui = new dat.GUI();
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor(new THREE.Color(0x000000));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+
+
+            //화면 마우스로 회전시키기
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            camera.position.set(-20, 20, 20);
+            controls.update();
+
+            var axes = new THREE.AxesHelper(15);
+            scene.add(axes);
+
+            //빛1
+            const color = 0xffffff;
+            const intensity = 1;
+            const light = new THREE.DirectionalLight(color, intensity);
+            light.position.set(-10, 2, 4);
+            scene.add(light);
+            //빛2
+            var ambientLight = new THREE.AmbientLight(0x0c0c00);
+            scene.add(ambientLight); 
+
+            //바닥
+            const pgeometry = new THREE.PlaneGeometry(15, 15);
+            var pmaterial = new THREE.MeshLambertMaterial({
+                side: THREE.FrontSide,
+            });
+            const plane = new THREE.Mesh(pgeometry, pmaterial);
+            plane.rotation.x = 1.5 * Math.PI;
+            plane.position.set(0, -1, 0);
+            scene.add(plane);
+
+            //Materials
+            const lambertMaterial = new THREE.MeshLambertMaterial({ color: '#DF0101' }); // 가장 아래
+            const phongMaterial = new THREE.MeshPhongMaterial({ color: '#FFFF00' });
+            const standardMaterial = new THREE.MeshStandardMaterial({ color: '#01DF01' });
+            const physicalMaterial = new THREE.MeshPhysicalMaterial({ color: '#0040FF' }); // 가장 위, 광택 추가
+
+            //도형 1
+            const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+            const box = new THREE.Mesh(boxGeometry, lambertMaterial);
+            box.position.y = 0.5;
+            scene.add(box);
+
+            //도형 2
+            const coneGeometry = new THREE.ConeGeometry(0.7, 1, 32);
+            const cone = new THREE.Mesh(coneGeometry, phongMaterial);
+            cone.position.y = 2;
+            scene.add(cone);
+
+            //도형 3
+            const cylinderGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
+            const cylinder = new THREE.Mesh(cylinderGeometry, standardMaterial);
+            cylinder.position.y = 3.5;
+            scene.add(cylinder);
+
+            //도형 4
+            const sphereGeometry = new THREE.SphereGeometry(0.7, 32, 16);
+            const sphere = new THREE.Mesh(sphereGeometry, physicalMaterial);
+            sphere.position.y = 5;
+            scene.add(sphere);
+
+            sphere.material.metalness = 0.5;
+            sphere.material.roughness = 0.4;
+            sphere.material.shininess = 100;
+            cone.material.flatshading = false;
+
+            document
+                .getElementById("webgl-output")
+                .appendChild(renderer.domElement);
+
+            renderScene();
+            function renderScene() {
+                controls.update();
+                requestAnimationFrame(renderScene);
+
+                renderer.render(scene, camera);
+            }
+        }
+        window.onload = init;
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ThreeJS</title>
+    <script src="./three.js"></script>
+    <script src="./dat.gui.js"></script>
+    <script src="./OrbitControls.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="webgl-output"></div>
+    <script>
+      function init() {
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const gui = new dat.GUI();
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(new THREE.Color(0x000000));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+
+        //화면 마우스로 회전시키기
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        camera.position.set(-20, 20, 20);
+        controls.update();
+
+        //바닥
+        const pgeometry = new THREE.PlaneGeometry(15, 15);
+        const pmaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+        const plane = new THREE.Mesh(pgeometry, pmaterial);
+        plane.rotation.x = 1.5 * Math.PI;
+        plane.position.set(0, -1, 0);
+        plane.receiveShadow = true;
+        scene.add(plane);
+        //큐브
+        cgeometry = new THREE.BoxGeometry(1, 1, 1);
+        cmaterial = new THREE.MeshStandardMaterial({ color: 0x28b463 });
+        cube = new THREE.Mesh(cgeometry, cmaterial);
+        cube.castShadow = true;
+        scene.add(cube);
+        //directional light
+        dlight = new THREE.DirectionalLight(0xffffff, 1);
+        dlight.position.set(5, 5, 0);
+        dlight.castShadow = true;
+        scene.add(dlight);
+        gui.add(dlight, "visible").name("directional light");
+        //directional light 헬퍼
+        const dhelper = new THREE.DirectionalLightHelper(dlight, 5);
+        scene.add(dhelper);
+        gui.add(dhelper, "visible").name("d-light helper");
+        //포인트라이트
+        plight = new THREE.PointLight(0xffffff, 1, 100, 1);
+        plight.position.set(-3, 1, 3);
+        plight.castShadow = true;
+        scene.add(plight);
+        gui.add(plight, "visible").name("PointLight");
+        //포인트라이트 헬퍼
+        const pointLightHelper = new THREE.PointLightHelper(plight, 1);
+        scene.add(pointLightHelper);
+        gui.add(pointLightHelper, "visible").name("pointLightHelper");
+        //스팟라이트
+        slight = new THREE.SpotLight(0xffffff, 1);
+        slight.position.set(0, 1, 5);
+        slight.castShadow = true;
+        scene.add(slight);
+        gui.add(slight, "visible").name("SpotLight");
+        //스팟라이트 헬퍼
+        const spotLightHelper = new THREE.SpotLightHelper(slight);
+        scene.add(spotLightHelper);
+        gui.add(spotLightHelper, "visible").name("SpotLightHelper");
+        //엠비언트라이트
+        alight = new THREE.AmbientLight(0xffff00, 1);
+        alight.visible = false;
+        scene.add(alight);
+        gui.add(alight, "visible").name("AmbientLight");
+        //hemisphere light
+        var hlight = new THREE.HemisphereLight(0xf29886, 0x000000, 1);
+        hlight.visible = false;
+        scene.add(hlight);
+        gui.add(hlight, "visible").name("HemisphereLight");
+        //hemisphere light 헬퍼
+        const hhelper = new THREE.HemisphereLightHelper(hlight, 5);
+        hhelper.visible = false;
+        scene.add(hhelper);
+        gui.add(hhelper, "visible").name("HemisphereLightHelper");
+        //rectarealight
+        rlight = new THREE.RectAreaLight(0xffffff, 1, 20, 20);
+        rlight.position.set(5, 5, 0);
+        rlight.lookAt(0, 0, 0);
+        rlight.visible = false;
+        scene.add(rlight);
+        gui.add(rlight, "visible").name("RectAreaLight");
+        //
+        // const rahelper = new THREE.RectAreaLightHelper(hlight, 5);
+        // rahelper.visible = false;
+        // scene.add(rahelper);
+        // gui.add(rahelper, "visible").name("RectAreaLightHelper");
+        //
+        document.getElementById("webgl-output").appendChild(renderer.domElement);
+        renderScene();
+
+        function renderScene() {
+          controls.update();
+          requestAnimationFrame(renderScene);
+          renderer.render(scene, camera);
+        }
+      }
+      window.onload = init;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>THREEJS</title>
+        <script src="./three.js"></script>
+        <script src="./dat.gui.js"></script>
+        <script src="./OrbitControls.js"></script>
+        <style>
+            body { margin: 0; overflow: hidden; }
+        </style>
+    </head>
+
+    <body>
+        <div id="webgl-output"></div>
+    <script>
+      function init() {
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const gui = new dat.GUI();
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(new THREE.Color(0x000000));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+
+        //화면 마우스로 회전시키기
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        camera.position.set(-20, 20, 20);
+        controls.update();
+
+        //바닥
+        const pgeometry = new THREE.PlaneGeometry(15, 15);
+        const pmaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+        const plane = new THREE.Mesh(pgeometry, pmaterial);
+        plane.rotation.x = 1.5 * Math.PI;
+        plane.position.set(0, -1, 0);
+        plane.receiveShadow = true;
+        scene.add(plane);
+        
+        //큐브
+        cgeometry = new THREE.BoxGeometry(1, 1, 1);
+        cmaterial = new THREE.MeshStandardMaterial({ color: 0x28b463 });
+        cube = new THREE.Mesh(cgeometry, cmaterial);
+        cube.castShadow = true;
+        scene.add(cube);
+        
+        document.getElementById("webgl-output").appendChild(renderer.domElement);
+        renderScene();
+
+        function renderScene() {
+          controls.update();
+          requestAnimationFrame(renderScene);
+          renderer.render(scene, camera);
+        }
+      }
+      window.onload = init;
+    </script>
+    </body>
+</html>

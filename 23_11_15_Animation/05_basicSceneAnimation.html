@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>ThreeJS 프로그램-04 </title>
+		<script src="./three.js"></script>
+		<style>
+			body { 
+				margin: 0; 
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+<div id="webgl-output"></div>
+
+		<script>
+
+			function init() {
+    // create a scene, that will hold all our elements such as objects, cameras and lights.
+    var scene = new THREE.Scene();
+
+    // create a camera, which defines where we're looking at.
+    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+    // create a render and set the size
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setClearColor(new THREE.Color(0x000000));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMapEnabled = true;
+
+    var spotLight = new THREE.SpotLight(0xffffff);
+    spotLight.position.set(-40, 60, -10);
+    spotLight.castShadow = true;
+    scene.add(spotLight);
+
+
+    // show axes in the screen
+    var axes = new THREE.AxesHelper(20);
+    scene.add(axes);
+
+    // create a cube
+    var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+    var cubeMaterial = new THREE.MeshLambertMaterial({
+        color: 0xFF0000});
+    var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+    cube.castShadow = true;
+    // position the cube
+    //cube.position.set(-4, 3, 0);
+
+    // add the cube to the scene
+    scene.add(cube);
+
+    // position and point the camera to the center of the scene
+    camera.position.set(-30, 40, 30);
+    camera.lookAt(scene.position);
+
+    // add the output of the renderer to the html element
+    document.getElementById("webgl-output").appendChild(renderer.domElement);
+
+    // render the scene
+    renderScene();
+function renderScene()
+{
+ cube.rotation.x += 0.02;
+ cube.rotation.y += 0.02;
+ cube.rotation.z += 0.02;
+
+  requestAnimationFrame(renderScene);
+  renderer.render(scene, camera);
+}
+
+}
+
+			window.onload = init;
+		</script>
+	</body>
+</html>
